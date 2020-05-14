@@ -407,3 +407,16 @@ def test_pytest_runtest_logfinish_is_called(testdir):
     """.format(hook_message))
     result = testdir.runpytest('--reruns', '1', '-s')
     result.stdout.fnmatch_lines(hook_message)
+
+
+def test_report_sections_reported_once(testdir):
+    testdir.makepyfile("""
+        count = 0
+        def test_fail():
+            global count
+            count += 1
+            print('Fail number', count)
+            assert False
+        """)
+    result = testdir.runpytest('--reruns', '2')
+    assert result.stdout.str().count('Captured stdout call') == 1
